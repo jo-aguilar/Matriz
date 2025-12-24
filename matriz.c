@@ -20,8 +20,9 @@ void print(Matriz *self);
 Matriz pm(Matriz*, Matriz*, char*);
 Matriz sm (Matriz* m1, Matriz* m2){ return pm(m1, m2, "mais");}
 Matriz sub(Matriz* m1, Matriz* m2){ return pm(m1, m2, "menos");}
+Matriz ident(int);
 
-Matriz matriz(double* mat, int linhas, int colunas) {
+Matriz matriz(double* mat, int linhas, int  colunas) {
 //Construtor do pseudo-objeto Matriz
 	Matriz m;
 	m.matriz = mat;
@@ -32,24 +33,58 @@ Matriz matriz(double* mat, int linhas, int colunas) {
 	return m;
 }
 
+Matriz ret_lin(Matriz* m, int l){
+//Retorna uma linha qualquer completa de dentro da matriz fornecida
+	int colunas = m->colunas;
+	double* linha = malloc(colunas*sizeof(double));
+	linha = memcpy(linha, &(m->matriz[l*colunas]) , colunas*sizeof(double));
+	return matriz(linha, 1, colunas); 
+}
 
-int main(){
-	
-	double m1[2][2] = {{1, 2}, {3,4}};
-	double m2[2][2] = {{5, 6}, {7,8}};
-	Matriz m11 = matriz(&m1[0][0], 2, 2);
-	Matriz m22 = matriz(&m2[0][0], 2, 2);
-	Matriz res1 = sm(&m11, &m22);
-	Matriz res2 = sub(&m11, &m22);
-	res1.print(&res1);
-	res2.print(&res2);
+Matriz mult(Matriz* m, double v){
+//Devolve uma linha qualquer completa de uma matriz multiplicada 
+//por um fator v fornecido pelo usuário
+	double* mat = m->matriz;
+	for(int i = 0; i < m->colunas; i++)
+		mat[i] = v*mat[i]; 
+	return matriz(mat, m->linhas, m->colunas);
+}
+
+void subst(Matriz* m, Matriz* l, int indice){
+//Substitui uma linha arbitrária de uma matriz por uma nova linha
+	int colunas = l->colunas;
+	memcpy(&(m->matriz[indice*colunas]), l->matriz, indice*colunas*sizeof(double));
+}
+
+int main(){	
+	double m1[3][3] = {{1, 2, 3}, {4, 5, 6},{7, 8, 9}};
+	Matriz m = matriz(&m1[0][0], 3,3);
+	m.print(&m);
+	Matriz linha = ret_lin(&m, 1);
+	linha.print(&linha);
+	linha = mult(&linha, -3);
+	linha.print(&linha);
+	subst(&m, &linha, 1);
+	m.print(&m);
+}
+
+
+Matriz ident(int t){
+//Retorna uma matriz identidade de dimensão txt
+	double* arr = malloc(t*t*sizeof(double));
+	memset(arr, 0, sizeof(arr));
+	for(int i = 0; i < t*t; i++) { arr[(t+1)*i] = 1;}
+	return matriz(arr, t, t);
 }
 
 double ret(Matriz* self, int l, int c){
+//Retorna um elemento definido pelo índice (a,b) de uma matriz
+//de qualquer dimensão
 	return self->matriz[l*self->colunas + c];
 }
 
 void print(Matriz *self){
+//Apresenta uma matriz formatada para a visualização do usuário
 	const int l = self->linhas;
 	const int c = self->colunas;
 	double* mat = self->matriz;
@@ -67,6 +102,8 @@ void print(Matriz *self){
 }
 
 Matriz transposta(Matriz* self){
+//Retorna uma matriz transposta de uma matriz retangular
+//de qualquer dimensão
 	const int l = self->linhas;
 	const int c = self->colunas;
 	double* nova_mat = (double *)malloc(l*c*sizeof(double));
@@ -79,6 +116,7 @@ Matriz transposta(Matriz* self){
 }
 
 Matriz pm (Matriz* m1, Matriz* m2, char* op){
+//Função superior para soma e subtração de matrizes
 	if(m1->linhas == m2->linhas && m1->colunas==m2->colunas){
 		const int l = m1->linhas;
 		const int c = m1->colunas;
