@@ -33,6 +33,43 @@ Matriz matriz(double* mat, int linhas, int  colunas) {
 	return m;
 }
 
+Matriz ret_lin(Matriz*, int);
+Matriz mult(Matriz*, double);
+void subst(Matriz*, Matriz* , int);
+Matriz extend(Matriz* m, Matriz*n)
+{
+	int colunas = m->colunas;
+	int linhas  = m->linhas;
+	double *original = m->matriz;
+	double *identidade = n->matriz;
+	double *retorno = malloc(2*linhas*colunas*sizeof(double));
+	printf("[DEBUG] Quant. colunas: %d\n",colunas);
+	printf("[DEBUG] Quant. linhas:  %d\n", linhas);	
+	for(int i = 0; i < linhas; i++){	
+		double* nova_linha = malloc(2*colunas*sizeof(double));
+		memcpy(nova_linha,           original   + i*colunas, colunas*sizeof(double));
+		memcpy(nova_linha + colunas, identidade + i*colunas, colunas*sizeof(double));
+		memcpy(retorno + i*2*colunas, nova_linha, 2*colunas*sizeof(double));
+		free(nova_linha);
+	}
+	return matriz(retorno, linhas, 2*colunas);
+
+}
+
+
+int main(){	
+	//double m1[3][3] = {{1, 2, 3}, {4, 5, 6},{7, 8, 9}};
+	//Matriz m = matriz(&m1[0][0], 3,3);
+	Matriz m1 = matriz(((double[]){1, 2, 3, 4, 5, 6, 7, 8, 9}), 3, 3);
+	Matriz m2 = matriz(((double[]){10, 11, 12, 13, 14, 15, 16, 17, 18}), 3, 3);	
+
+	//m.print(&m);
+	//i.print(&i);
+	Matriz m3 = extend(&m1, &m2);
+	m3.print(&m3);
+	
+}
+
 Matriz ret_lin(Matriz* m, int l){
 //Retorna uma linha qualquer completa de dentro da matriz fornecida
 	int colunas = m->colunas;
@@ -55,19 +92,6 @@ void subst(Matriz* m, Matriz* l, int indice){
 	int colunas = l->colunas;
 	memcpy(&(m->matriz[indice*colunas]), l->matriz, indice*colunas*sizeof(double));
 }
-
-int main(){	
-	double m1[3][3] = {{1, 2, 3}, {4, 5, 6},{7, 8, 9}};
-	Matriz m = matriz(&m1[0][0], 3,3);
-	m.print(&m);
-	Matriz linha = ret_lin(&m, 1);
-	linha.print(&linha);
-	linha = mult(&linha, -3);
-	linha.print(&linha);
-	subst(&m, &linha, 1);
-	m.print(&m);
-}
-
 
 Matriz ident(int t){
 //Retorna uma matriz identidade de dimensão txt
