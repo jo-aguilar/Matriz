@@ -25,6 +25,8 @@ Matriz ret_lin(Matriz*, int);
 Matriz mult(Matriz*, double);
 void subst(Matriz*, Matriz* , int);
 Matriz extend(Matriz*, Matriz*);
+Matriz mat_mult(Matriz*, Matriz*);
+double int_prod(Matriz*, Matriz*);
 
 Matriz matriz(double* mat, int linhas, int  colunas) {
 //Construtor do pseudo-objeto Matriz
@@ -37,6 +39,54 @@ Matriz matriz(double* mat, int linhas, int  colunas) {
 	return m;
 }
 
+Matriz inv(Matriz *);
+
+int main(){
+	Matriz m1 = matriz(((double[]){1, 2, 3, 4, 5, 6, 7, 8, 5}), 3, 3);
+	printf("P1: \n");
+	m1.print(&m1);
+	Matriz inversa = inv(&m1);
+	printf("P2: \n");
+	inversa.print(&inversa);
+	Matriz i = mat_mult(&m1, &inversa);
+	printf("P1XP2: \n");
+	i.print(&i);
+}
+
+Matriz inv(Matriz *origin){
+//Utiliza Gauss-Jordan para a obtenção da matriz inversa de uma 
+//matriz quadrada fornecida pelo usuário
+	int linhas  = origin->linhas;
+	int colunas = origin->colunas; 
+	Matriz id = ident(linhas);
+	Matriz est = extend(origin, &id);
+	
+	for(int i = 0; i < linhas; i++){
+		int n = i;
+		double fator = 1/ret(&est, n, n);
+		Matriz l1 = ret_lin(&est, n);
+		l1 = mult(&l1, fator);
+		subst(&est, &l1, i);
+		
+		for(int j = 0; j < linhas; j++){
+			if(i!=j){
+				Matriz l2 = ret_lin(&est, j);
+				double novo_fator = ret(&est, j, i);
+				l1 = ret_lin(&est, i);
+				Matriz novo_l1 = mult(&l1, novo_fator);
+				Matriz novo_l2 = sub(&l2, &novo_l1);
+				subst(&est, &novo_l2, j);
+			}
+		}
+	}
+	double* retorno = malloc(linhas*colunas*sizeof(double));
+	for(int i = 0; i < linhas; i++){
+		Matriz linha = ret_lin(&est, i);
+		double* l = linha.matriz;
+		memcpy(&retorno[i*colunas], &l[colunas] , colunas*sizeof(double));
+	}
+	return matriz(retorno, linhas, colunas);
+}
 
 double int_prod(Matriz* l1, Matriz *l2){
 //A partir de duas matrizes-linha, retorna o produto
@@ -47,8 +97,8 @@ double int_prod(Matriz* l1, Matriz *l2){
 	return prod;
 }
 
-Matriz mat_mult(Matriz* a, Matriz* b)
-{
+Matriz mat_mult(Matriz* a, Matriz* b){
+//Multiplica duas matrizes fornecidas pelo usuário
 	int linhas = a->linhas;
 	int colunas = b->colunas;
 	double* res = malloc(linhas*colunas*sizeof(double));
@@ -63,25 +113,6 @@ Matriz mat_mult(Matriz* a, Matriz* b)
 		}
 	}
 	return matriz(res, linhas, colunas);
-}
-
-
-int main(){	
-	Matriz m1 = matriz(((double[]){1, 2, 3, 4, 5, 6, 7, 8, 9}), 3, 3);
-	Matriz m2 = matriz(((double[]){10, 11, 12, 13, 14, 15, 16, 17, 18}), 3, 3);
-	Matriz linha1 = ret_lin(&m1, 0);
-	Matriz linha2 = ret_lin(&m2, 0);
-
-	linha1.print(&linha1);
-	linha2.print(&linha2);
-
-	double prod = int_prod(&linha1, &linha2);
-	printf("Produto l1xl2: %f\n", prod);
-
-	Matriz res = mat_mult(&m1, &m2);
-	res.print(&res);
-
-	
 }
 
 Matriz extend(Matriz* m, Matriz*n){
@@ -114,7 +145,7 @@ Matriz mult(Matriz* m, double v){
 void subst(Matriz* m, Matriz* l, int indice){
 //Substitui uma linha arbitrária de uma matriz por uma nova linha
 	int colunas = l->colunas;
-	memcpy(&(m->matriz[indice*colunas]), l->matriz, indice*colunas*sizeof(double));
+	memcpy(&(m->matriz[indice*colunas]), l->matriz, colunas*sizeof(double));
 }
 
 Matriz ret_lin(Matriz* m, int l){
@@ -128,7 +159,7 @@ Matriz ret_lin(Matriz* m, int l){
 Matriz ident(int t){
 //Retorna uma matriz identidade de dimensão txt
 	double* arr = malloc(t*t*sizeof(double));
-	memset(arr, 0, sizeof(arr));
+	memset(arr, 0, t*t*sizeof(arr));
 	for(int i = 0; i < t*t; i++) { arr[(t+1)*i] = 1;}
 	return matriz(arr, t, t);
 }
