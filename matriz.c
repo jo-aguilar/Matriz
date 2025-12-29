@@ -1,32 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-typedef struct Matriz Matriz;
-
-struct Matriz {
-	int colunas;
-	int linhas;
-	double* matriz;
-	double (*ret)(Matriz*, int, int);
-	double (*transposta)(Matriz*);
-	void (*print)(Matriz*);
-};
-
-Matriz matriz(double* mat, int linhas, int colunas);
-double ret(Matriz* self, int l, int c);
-Matriz transposta(Matriz *self);
-void print(Matriz *self);
-Matriz pm(Matriz*, Matriz*, char*);
-Matriz sm (Matriz* m1, Matriz* m2){ return pm(m1, m2, "mais");}
-Matriz sub(Matriz* m1, Matriz* m2){ return pm(m1, m2, "menos");}
-Matriz ident(int);
-Matriz ret_lin(Matriz*, int);
-Matriz mult(Matriz*, double);
-void subst(Matriz*, Matriz* , int);
-Matriz extend(Matriz*, Matriz*);
-Matriz mat_mult(Matriz*, Matriz*);
-double int_prod(Matriz*, Matriz*);
+#include "matriz.h"
 
 Matriz matriz(double* mat, int linhas, int  colunas) {
 //Construtor do pseudo-objeto Matriz
@@ -37,20 +9,6 @@ Matriz matriz(double* mat, int linhas, int  colunas) {
 	m.ret = ret;
 	m.print = print;
 	return m;
-}
-
-Matriz inv(Matriz *);
-
-int main(){
-	Matriz m1 = matriz(((double[]){1, 2, 3, 4, 5, 6, 7, 8, 5}), 3, 3);
-	printf("P1: \n");
-	m1.print(&m1);
-	Matriz inversa = inv(&m1);
-	printf("P2: \n");
-	inversa.print(&inversa);
-	Matriz i = mat_mult(&m1, &inversa);
-	printf("P1XP2: \n");
-	i.print(&i);
 }
 
 Matriz inv(Matriz *origin){
@@ -226,3 +184,12 @@ Matriz pm (Matriz* m1, Matriz* m2, char* op){
 	}				       
 }
 
+Matriz sm (Matriz* m1, Matriz* m2){
+//Retorna a soma entre duas matrizes
+	return pm(m1, m2, "mais");
+}
+
+Matriz sub(Matriz* m1, Matriz* m2){
+//Retorna a subtração entre duas matrizes
+	return pm(m1, m2, "menos");
+}
