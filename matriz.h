@@ -31,5 +31,6 @@ Matriz extend(Matriz*, Matriz*);
 Matriz mat_mult(Matriz*, Matriz*);
 double int_prod(Matriz*, Matriz*);
 Matriz inv(Matriz *);
+Matriz zeros(int, int); 
 
 #endif

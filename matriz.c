@@ -11,6 +11,15 @@ Matriz matriz(double* mat, int linhas, int  colunas) {
 	return m;
 }
 
+Matriz zeros(int l, int c){
+//Retorna uma matriz de zeros do tamanho especificado pelo
+//usuário.
+	double* mat = malloc(l*c*sizeof(double));
+	memset(mat, 0, l*c*sizeof(double));
+	return matriz(mat, l, c);
+}
+
+
 Matriz inv(Matriz *origin){
 //Utiliza Gauss-Jordan para a obtenção da matriz inversa de uma 
 //matriz quadrada fornecida pelo usuário
@@ -78,17 +87,19 @@ Matriz extend(Matriz* m, Matriz*n){
 //A e B fornecidas pelo usuário (com a mesma quantidade de linhas)
 	int colunas = m->colunas;
 	int linhas  = m->linhas;
+	int n_col   = n->colunas;
+	int n_lin   = n->linhas;
 	double *original = m->matriz;
 	double *identidade = n->matriz;
 	double *retorno = malloc(2*linhas*colunas*sizeof(double));
 	for(int i = 0; i < linhas; i++){	
-		double* nova_linha = malloc(2*colunas*sizeof(double));
+		double* nova_linha = malloc((colunas + n_col)*sizeof(double));
 		memcpy(nova_linha,           original   + i*colunas, colunas*sizeof(double));
-		memcpy(nova_linha + colunas, identidade + i*colunas, colunas*sizeof(double));
-		memcpy(retorno + i*2*colunas, nova_linha, 2*colunas*sizeof(double));
+		memcpy(nova_linha + colunas, identidade + i*n_col, n_col*sizeof(double));
+		memcpy(retorno + i*(n_col + colunas), nova_linha, (n_col+colunas)*sizeof(double));
 		free(nova_linha);
 	}
-	return matriz(retorno, linhas, 2*colunas);
+	return matriz(retorno, linhas, n_col + colunas);
 }
 
 Matriz mult(Matriz* m, double v){
