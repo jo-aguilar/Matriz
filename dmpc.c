@@ -36,6 +36,34 @@ Matriz ret_C(Matriz* Cm){
 	return M0;
 }
 
+void discret(double T, Matriz* Am, Matriz* Bm, Matriz* Ad, Matriz* Bd){
+//Modifica os valores internos das matrizes Bd, e Ad a partir da discretização
+//de Tustin feita sobre as Matrizes Am, Bm e sobre o valor de tempo amostrado T
+	Matriz I = ident(Am->colunas);  
+	Matriz A_modif = mult(Am, T/2); //(a*A)
+	Matriz M0 = sub(&I, &A_modif);  //(I - a*A);
+	Matriz M1 = inv(&M0);           //inv(I - a*A);
+	Matriz M2 = sm(&I, &A_modif);   //(I + a*A);
+	*Ad = mat_mult(&M1, &M2);
+
+	Matriz M3 = mult(Bm, T);        //B*T
+	*Bd = mat_mult(&M1, &M3);       //inv(I - a*A)*B*T
+	
+	free(I.matriz);
+	free(M0.matriz);
+	free(M1.matriz);
+	free(M2.matriz);
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

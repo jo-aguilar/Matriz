@@ -106,7 +106,7 @@ Matriz mult(Matriz* m, double v){
 //Devolve uma linha qualquer completa de uma matriz multiplicada 
 //por um fator v fornecido pelo usuário
 	double* mat = m->matriz;
-	for(int i = 0; i < m->colunas; i++)
+	for(int i = 0; i < m->colunas*m->linhas; i++)
 		mat[i] = v*mat[i]; 
 	return matriz(mat, m->linhas, m->colunas);
 }
@@ -148,8 +148,8 @@ void print(Matriz *self){
 	
 	for(int i = 0; i < l; i++){
 		for(int j = 0; j < c; j++){
-			if(j == c-1) printf("%f", self->ret(self, i, j));
-			else printf("%f \t", self->ret(self, i, j));
+			if(j == c-1) printf("%lg", self->ret(self, i, j));
+			else printf("%8.5lg \t", self->ret(self, i, j));
 		}
 		if(i == l-1) printf("]\n");
 		else printf("\n");
