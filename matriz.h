@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct Matriz Matriz;
 
@@ -16,6 +17,7 @@ struct Matriz {
 	void (*print)(Matriz*);
 };
 
+Matriz mat_pot(Matriz*, double);
 Matriz matriz(double* mat, int linhas, int colunas);
 double ret(Matriz* self, int l, int c);
 Matriz transposta(Matriz *self);

@@ -11,6 +11,17 @@ Matriz matriz(double* mat, int linhas, int  colunas) {
 	return m;
 }
 
+Matriz mat_pot(Matriz* mat, double pot) {
+	double* m1 = mat->matriz;
+	double* m = malloc(mat->linhas*mat->colunas*sizeof(double));
+	memcpy(m, m1, mat->linhas*mat->colunas*sizeof(double));
+	for(int i = 0; i < mat->colunas*mat->linhas; i++) {
+		m[i] = pow(m[i], pot);
+	}
+	return matriz(m, mat->linhas, mat->colunas);
+}
+
+
 Matriz zeros(int l, int c){
 //Retorna uma matriz de zeros do tamanho especificado pelo
 //usuário.
@@ -91,7 +102,7 @@ Matriz extend(Matriz* m, Matriz*n){
 	int n_lin   = n->linhas;
 	double *original = m->matriz;
 	double *identidade = n->matriz;
-	double *retorno = malloc(2*linhas*colunas*sizeof(double));
+	double *retorno = malloc(linhas*(colunas+n_col)*sizeof(double));
 	for(int i = 0; i < linhas; i++){	
 		double* nova_linha = malloc((colunas + n_col)*sizeof(double));
 		memcpy(nova_linha,           original   + i*colunas, colunas*sizeof(double));
@@ -129,7 +140,7 @@ Matriz ident(int t){
 //Retorna uma matriz identidade de dimensão txt
 	double* arr = malloc(t*t*sizeof(double));
 	memset(arr, 0, t*t*sizeof(arr));
-	for(int i = 0; i < t*t; i++) { arr[(t+1)*i] = 1;}
+	for(int i = 0; i < t; i++) { arr[(t+1)*i] = 1;}
 	return matriz(arr, t, t);
 }
 
