@@ -12,13 +12,18 @@ Matriz matriz(double* mat, int linhas, int  colunas) {
 }
 
 Matriz mat_pot(Matriz* mat, double pot) {
-	double* m1 = mat->matriz;
+	/*double* m1 = mat->matriz;
 	double* m = malloc(mat->linhas*mat->colunas*sizeof(double));
 	memcpy(m, m1, mat->linhas*mat->colunas*sizeof(double));
 	for(int i = 0; i < mat->colunas*mat->linhas; i++) {
 		m[i] = pow(m[i], pot);
 	}
-	return matriz(m, mat->linhas, mat->colunas);
+	return matriz(m, mat->linhas, mat->colunas);*/
+	Matriz res = *mat;
+	for(int i = 0; i < pot-1; i++){
+		res = mat_mult(&res, mat);
+	}
+	return res;
 }
 
 
@@ -159,8 +164,8 @@ void print(Matriz *self){
 	
 	for(int i = 0; i < l; i++){
 		for(int j = 0; j < c; j++){
-			if(j == c-1) printf("%lg", self->ret(self, i, j));
-			else printf("%8.5lg \t", self->ret(self, i, j));
+			if(j == c-1) printf("%3lg", self->ret(self, i, j));
+			else printf("%8.3lg \t", self->ret(self, i, j));
 		}
 		if(i == l-1) printf("]\n");
 		else printf("\n");
