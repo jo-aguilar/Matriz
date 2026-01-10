@@ -1,10 +1,12 @@
 #include "dmpc.h"
 
-
 Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
+//Matriz deslizada de Toeplitz formada a partir de um vetor de fatores de
+//potência a serem deslizados
 	Matriz Phi = matriz((double[]){}, 0, 0);
 	Matriz Phi_primario = matriz((double[]){}, 0, 0);
 	
+	//Crição do vetor (1xNp) a ser deslizado para a criação de Toeplitz
 	for(int i = 1; i <= Np; i++){
 		if((Np-i) != 0) {
 			int pot = Np - i;
@@ -12,8 +14,7 @@ Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
 			MA = mat_mult(C, &MA);
 			MA = mat_mult(&MA, B);
 			Phi_primario = extend(&MA, &Phi_primario);
-		}
-		else{
+		} else {
 			Matriz MA = mat_mult(C, B);
 			Phi_primario = extend(&MA, &Phi_primario); 
 		}
@@ -32,8 +33,27 @@ Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
 	Phi_primario = matriz(flip(Phi_primario.matriz, tamanho),
 				   Phi_primario.linhas,
 				   Phi_primario.colunas);
+	
+	Phi_primario.print(&Phi_primario);
+	double *phi_mat = Phi_primario.matriz;
+	
+	//Primeira linha da matriz de Toeplitz é copiada como a primeira linha
+	//da resposta para que a resposta final não seja uma matriz nula	
+	Matriz res = zeros(1, Nc);
+	memcpy(res.matriz, phi_mat+Np-1, 1*sizeof(double));
 
-	return Phi_primario;
+	for(int i = 1; i < Np; i++){
+	//A quantidade de colunas deve ser garantidamente do tamanho de Nc, sendo
+	//garantido tanto a partir de ind_max
+		int ind_max = i+1;
+		if(ind_max > Nc) ind_max = Nc; //quant. cols. não maior que Nc
+		Matriz Toep = zeros(1, Nc);
+		memcpy(Toep.matriz, phi_mat+Np-i-1, (ind_max)*sizeof(double));
+		res = extend(&res, &Toep);
+		free(Toep.matriz);
+	}
+	free(Phi_primario.matriz);
+	return res;
 }
 
 Matriz func_F(int Np, Matriz* C, Matriz* A){
