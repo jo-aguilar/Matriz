@@ -7,6 +7,7 @@ Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
 	Matriz Phi_primario = matriz((double[]){}, 0, 0);
 	
 	//Crição do vetor (1xNp) a ser deslizado para a criação de Toeplitz
+	
 	for(int i = 1; i <= Np; i++){
 		if((Np-i) != 0) {
 			int pot = Np - i;
@@ -34,13 +35,13 @@ Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
 				   Phi_primario.linhas,
 				   Phi_primario.colunas);
 	
-	Phi_primario.print(&Phi_primario);
 	double *phi_mat = Phi_primario.matriz;
 	
 	//Primeira linha da matriz de Toeplitz é copiada como a primeira linha
 	//da resposta para que a resposta final não seja uma matriz nula	
 	Matriz res = zeros(1, Nc);
 	memcpy(res.matriz, phi_mat+Np-1, 1*sizeof(double));
+	res = transposta(&res);
 
 	for(int i = 1; i < Np; i++){
 	//A quantidade de colunas deve ser garantidamente do tamanho de Nc, sendo
@@ -49,24 +50,28 @@ Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
 		if(ind_max > Nc) ind_max = Nc; //quant. cols. não maior que Nc
 		Matriz Toep = zeros(1, Nc);
 		memcpy(Toep.matriz, phi_mat+Np-i-1, (ind_max)*sizeof(double));
+		Toep = transposta(&Toep);
 		res = extend(&res, &Toep);
 		free(Toep.matriz);
 	}
 	free(Phi_primario.matriz);
-	return res;
+	return transposta(&res);
 }
 
 Matriz func_F(int Np, Matriz* C, Matriz* A){
 //Entrega a matriz compacta F (representativa das operações inerentes
 //ao sistema
-	Matriz F = matriz((double[]){}, 0, 0);	
-	for(int i = 0; i < Np; i++){
-		Matriz M0 = mat_pot(A, i+1);
+	Matriz M0 = mat_pot(A, 1);
+	Matriz M1 = mat_mult(C, &M0);
+	Matriz F = transposta(&M1);
+
+	for(int i = 2; i <= Np; i++){
+		Matriz M0 = mat_pot(A, i);
 		Matriz M1 = mat_mult(C, &M0);
-		extend(&F, &M1);
-		free(M0.matriz);
-		free(M1.matriz);
+		Matriz M2 = transposta(&M1);
+		F = extend(&F, &M2);
 	}
+	F = transposta(&F);
 	return F;
 }
 
