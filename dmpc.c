@@ -1,5 +1,29 @@
 #include "dmpc.h"
 
+Matriz Delta_u(Matriz* Phi, Matriz* R_barra, Matriz* Rs_barra,
+	       Matriz* F, double r_ki, Matriz* x_ki){
+	Matriz Phi_T = transposta(Phi);
+	Matriz Phi_T_Phi = mat_mult(&Phi_T, Phi);
+	Matriz M0 = sm(&Phi_T_Phi, R_barra);
+	Matriz M1 = inv(&M0);              //inv(Phi^T*Phi + R_barra)
+	Matriz M2 = mat_mult(&M1, &Phi_T); //inv(Phi^T*Phi + R_barra)*Phi^T
+	Matriz Rs_barra_r_ki = mult(Rs_barra, r_ki);
+	Matriz Fx_ki = mat_mult(F, x_ki);
+	Matriz M3 = sub(&Rs_barra_r_ki, &Fx_ki);
+	free(Phi_T.matriz);
+	free(Phi_T_Phi.matriz);
+	free(M0.matriz);
+	free(M1.matriz);
+	free(Rs_barra_r_ki.matriz);
+	free(Fx_ki.matriz);
+
+	Matriz Retorno = mat_mult(&M2, &M3);
+	free(M2.matriz);
+	free(M3.matriz);
+	return Retorno;
+	//inv(Phi_T*Phi + R_barra)*Phi^T*(Rs_barra*r_ki - F*x_ki)
+}
+
 Matriz func_Phi(Matriz* A, Matriz* B, Matriz* C, int Np, int Nc){
 //Matriz deslizada de Toeplitz formada a partir de um vetor de fatores de
 //potência a serem deslizados
