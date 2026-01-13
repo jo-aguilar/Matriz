@@ -1,7 +1,8 @@
 #include "dmpc.h"
 
-Matriz Delta_u(Matriz* Phi, Matriz* R_barra, Matriz* Rs_barra,
+Matriz func_deltau(Matriz* Phi, Matriz* R_barra, Matriz* Rs_barra,
 	       Matriz* F, double r_ki, Matriz* x_ki){
+//Obtenção do incremento do sinal de controle Delta_U
 	Matriz Phi_T = transposta(Phi);
 	Matriz Phi_T_Phi = mat_mult(&Phi_T, Phi);
 	Matriz M0 = sm(&Phi_T_Phi, R_barra);
