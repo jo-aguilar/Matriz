@@ -1,5 +1,26 @@
 #include "dmpc.h"
 
+double malha_fechada (int Nc, int Np, Matriz* F, Matriz* Phi, Matriz* R_barra, 
+		      Matriz* Rs_barra, double r_ki, double rw, Matriz* x_ki){
+	static double u_anterior = NAN;
+	static Matriz* x_anterior;
+	if(u_anterior == NAN){ //como setar ou verificar?
+		x_anterior = x_ki;
+		u_anterior = 0;
+	}
+	Matriz Delta_U = func_deltau(Phi, R_barra, Rs_barra, F, r_ki, x_ki);
+	double du_calc = u_anterior + Delta_U.ret(&Delta_U, 0, 0);
+
+	if(du_calc >0.5)
+		du_calc = 0.5;
+	else if(du_calc < 0)
+		du_calc = 0;
+	
+	u_anterior = du_calc;
+	return du_calc;
+
+} 
+
 Matriz func_deltau(Matriz* Phi, Matriz* R_barra, Matriz* Rs_barra,
 	       Matriz* F, double r_ki, Matriz* x_ki){
 //Obtenção do incremento do sinal de controle Delta_U
