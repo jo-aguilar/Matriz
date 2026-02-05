@@ -1,5 +1,95 @@
 #include "dmpc.h"
 
+void qp_hild(Matriz* H, Matriz* f, Matriz* A_cons, Matriz* b, Matriz* x_opt){
+	const int n1 = A_cons->linhas;
+	const int m1 = A_cons->colunas;
+	Matriz eta = MATRIZ_NULA();
+	Matriz inv_H = MATRIZ_NULA(); inv(H, &inv_H);
+	Matriz neg_inv_H = MATRIZ_NULA(); mult(&inv_H, &neg_inv_H, -1);
+	mat_mult(&neg_inv_H, f, &eta);
+	cop_mat(&eta, x_opt);
+	
+	double max(double a, double b){
+	//função de retorno de máximo de 2 números
+		if(a > b) return a;
+		else { return b; }
+	}
+
+
+	int kk = 0;
+	for(int i = 0; i < n1; i++){
+		Matriz A_cons_linha = MATRIZ_NULA();
+		Matriz A_cons_linha_eta = MATRIZ_NULA();
+		ret_lin(A_cons, &A_cons_linha, i);
+		mat_mult(&A_cons_linha, &eta, &A_cons_linha_eta);
+		if(A_cons_linha_eta.ret(&A_cons_linha_eta, 0, 0) 
+		   > b->ret(b, i, 1))
+		   	kk++;
+		else { kk = kk + 0; }
+	}
+	if(kk==0) { 
+		printf("Solução ótima encontrada.\nRetornando...\n");
+		return;
+	}//solução ótima encontrada inicialmente
+	
+	Matriz P = MATRIZ_NULA(),
+	       A_cons_tran = MATRIZ_NULA(),
+	       H_A_cons = MATRIZ_NULA(),
+	       H_f = MATRIZ_NULA(),
+	       A_cons_H_f = MATRIZ_NULA(),
+	       d = MATRIZ_NULA();
+	transposta(A_cons, &A_cons_tran); //A_cons'
+	mat_mult(&inv_H, &A_cons_tran, &H_A_cons); // H^(-1)*A_cons'
+	mat_mult(A_cons, &H_A_cons, &P);  //A_cons*(H^(-1)*A_cons')
+
+	mat_mult(&inv_H, f, &H_f); //H^(-1)*f
+	mat_mult(A_cons, &H_f, &A_cons_H_f); //A_cons*H^(-1)*f
+	sm(&A_cons_H_f, b, &d);
+	
+	const int n = d.linhas;
+	const int m = d.colunas;
+	Matriz x_ini = zeros(n, m);
+	Matriz lambda   = MATRIZ_NULA(); cop_mat(&x_ini, &lambda);
+	double al = 10; //número qualquer acima de 0 para evitar problemas
+	                //de convergência
+	for(int i = 0; i < 38; i++){ //1 SOMENTE PARA TESTES
+	//38 iterações como procura máxima para se evitar recursão infinita
+		Matriz lambda_p = MATRIZ_NULA();
+		cop_mat(&lambda, &lambda_p);
+		for(int j = 0; j < n; j++){
+			Matriz P_ret = MATRIZ_NULA(); ret_lin(&P, &P_ret, j);
+			double w = int_prod(&P_ret, &lambda) 
+			           - P.ret(&P, j, j)*lambda.ret(&lambda, j, 0);
+			//primeiro resultado é igual a 0.000 por lambda = |0
+			w = w + d.ret(&d, j, 0);
+			double la = -1*w/P.ret(&P, j, j);
+			lambda.matriz[j] = max(0, la);
+		}
+
+		Matriz M1 = MATRIZ_NULA(); sub(&lambda, &lambda_p, &M1);
+		Matriz M0 = MATRIZ_NULA(); transposta(&M1, &M0);
+		double al = int_prod(&M0, &M1);
+		
+		if(al < 10e-8) {
+			printf("al menor que limite.\nParando...\n");
+			break;
+		}
+		
+	
+	}
+	Matriz M2 = MATRIZ_NULA(), 
+	       M3 = MATRIZ_NULA(),
+	       M4 = MATRIZ_NULA(),
+	       H_2 = MATRIZ_NULA();
+	mat_mult(&neg_inv_H, f, &M2); //-H^(-1)*f 
+	mat_mult(&neg_inv_H, &A_cons_tran, &M3); //-H^(-1)*A_cons'
+	mat_mult(&M3, &lambda, &M4); //-H^(-1)*A_cons'*lambda
+	sm(&M2, &M4, x_opt);
+}
+
+
+
+
 double malha_fechada (int Nc, int Np, Matriz* F, Matriz* Phi, Matriz* R_barra, 
 		      Matriz* Rs_barra, double r_ki, double rw, Matriz* x_ki){
 //Malha fechada para execução real, não manipulando entrada por meio de ganhos,

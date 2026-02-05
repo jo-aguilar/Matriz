@@ -19,7 +19,7 @@ struct Matriz {
 	double (*transposta)(Matriz*);
 	void (*print)(Matriz*);
 };
-
+void cop_mat(Matriz* m1, Matriz* m2);
 Matriz matriz(double* mat, int linhas, int colunas);
 Matriz matriz_nula();
 void mat_pot(Matriz* mat, Matriz* res, int pot);

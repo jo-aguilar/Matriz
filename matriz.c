@@ -1,5 +1,16 @@
 #include "matriz.h"
 
+void cop_mat(Matriz* m1, Matriz* m2){
+	m2->linhas = m1->linhas;
+	m2->colunas = m1->colunas;
+	int contador = 0;
+	for(int linhas = 0; linhas < m2->linhas; linhas++){
+		for(int colunas = 0; colunas < m2->colunas; colunas++){
+			m2->matriz[contador++] = m1->ret(m1, linhas, colunas);
+		}
+	}
+}
+
 Matriz matriz(double* mat, int linhas, int  colunas) {
 //Construtor do pseudo-objeto Matriz
 	Matriz m;

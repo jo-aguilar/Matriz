@@ -2,6 +2,7 @@
 #define DMPC_H
 #include "matriz.h"
 
+void qp_hild(Matriz* H, Matriz* f, Matriz* A_cons, Matriz* b, Matriz* x_opt);
 double malha_fechada(int Nc, int Np, Matriz* F, Matriz* Phi, Matriz* R_barra, 
 		   Matriz* Rs_barra, double r_ki, double rw, Matriz* x_ki);
 void func_deltau(Matriz* Phi, Matriz* R_barra, Matriz* Rs_barra, Matriz* F, double r_ki, Matriz* x_ki, Matriz* ret); //pronto
